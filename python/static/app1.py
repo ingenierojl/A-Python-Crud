@@ -8,10 +8,11 @@ from funcion_insertar import *
 
 
 
-templates = Jinja2Templates(directory="C:/files/static")
-appr = APIRouter()
+appr = FastAPI()
+templates = Jinja2Templates(directory='D:\SoftPython\python\static')
 
-appr.mount("/static", StaticFiles(directory="C:/files/static"), name="static")
+appr.mount("/static", StaticFiles(directory="D:/SoftPython/python/static"), name="static")
+
 
 
 @appr.get("/")
@@ -30,15 +31,18 @@ def form_post(request: Request, eml: str = Form(...),psw: str = Form(...)):
     #return "LOGIN...""LOGIN..."
     #return SimpleLogin(eml=eml,psw=psw)
 
+
+
+@appr.post('/submit')
+def submit(car: str = Form(...)):
+    return car
+
 @appr.post("/signup")
 def form_post(request: Request, fn: str = Form(...), eml: str = Form(...), psw: str = Form(...), rpsw: str = Form(...)):
     print(fn)
     print(eml)
     print(psw)
-    print(rpsw)
-
-    
-    
+    print(rpsw)   
     insert_varibles_into_signup(fn, eml, psw, rpsw)
     return templates.TemplateResponse("/index.html",{"request":request})
     #return "LOGIN...""LOGIN..."
@@ -48,4 +52,6 @@ def form_post(request: Request, fn: str = Form(...), eml: str = Form(...), psw: 
 
 if __name__=='__main__':
    
-    uvicorn.run(appr, host="172.31.51.221", port=80)
+    uvicorn.run(appr, host="localhost", port=8080)
+
+ 
