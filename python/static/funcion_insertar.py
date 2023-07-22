@@ -54,7 +54,7 @@ def insert_varibles_into_signup(fn, eml, psw, rpsw):
                                              user='root',
                                              password='')
         cursor = connection.cursor()
-        mySql_insert_query = """INSERT INTO `usuarios` (`NombreCompleto`, `correo`, `password`, `rppasswod`) 
+        mySql_insert_query = """INSERT INTO `usuarios` (`NombreCompleto`, `correo`, `password`, `rppasword`) 
                                 VALUES (%s, %s, %s, %s) """
  
 
