@@ -25,8 +25,8 @@ body {
 
  
 
-.navbarr {
-  grid-area: navbarr;
+.nav-bar {
+  grid-area: nav-bar;
   background-color: #000000;
   float: left;
 
@@ -70,7 +70,7 @@ body {
   gap: 10px;
   grid-template:
     "header"  100px
-    "navbarr"  50px
+    "nav-bar"  50px
     "main"    auto
     "sidebar" 100px
     "footer"  100px;
@@ -81,16 +81,8 @@ body {
   .grid-container {
     grid-template:
       "header  header header"  100px
-      "navbarr  main   sidebar" auto
+      "nav-bar  main   sidebar" auto
       "footer  footer footer"  100px /
       200px    auto   200px;
   }
 }
-
-
-
-
-
-
-
-
