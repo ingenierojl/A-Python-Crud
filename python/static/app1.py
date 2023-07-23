@@ -48,6 +48,16 @@ def form_post(request: Request, fn: str = Form(...), eml: str = Form(...), psw: 
     #return "LOGIN...""LOGIN..."
     #return SimpleLogin(eml=eml,psw=psw)
 
+@appr.get("/obtenerusr")
+async def home(request: Request):
+    datos = {
+        'titulo': 'Mi página',
+        'mensaje': '¡Hola Anthony desde un endpoint!',
+        'nombre': 'Anthony',
+        'edad': 10
+    }
+    return templates.TemplateResponse("/html/usuarios.html", {"request": request, "datos": datos})
+
 
 
 if __name__=='__main__':

@@ -8,15 +8,15 @@ import mysql.connector
 def select_login(correo):
     
     try:
-        """"
+        
         connection = mysql.connector.connect(host='localhost',
                                              database='basedeprueba',
                                              user='root',
                                              password='')
-        cursor = connection.cursor()"""
+        cursor = connection.cursor()
         
-        connection=conexion()
-        cursor=conexion()
+        #connection=conexion()
+        #cursor=conexion()
 
         queryselect=("""SELECT correo, password from usuarios where correo = %s""")
 
