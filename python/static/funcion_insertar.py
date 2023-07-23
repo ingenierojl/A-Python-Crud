@@ -1,20 +1,10 @@
-from multiprocessing import connection
 from funcion_conexion import *
 from funcion_insertar import *
 import mysql.connector
 
-
-
-def select_login(correo):
-    
+def select_login(correo):    
     try:
-        """"
-        connection = mysql.connector.connect(host='localhost',
-                                             database='basedeprueba',
-                                             user='root',
-                                             password='')
-        cursor = connection.cursor()"""
-        
+     
         connection=conexion()
         cursor=connection.cursor()
 
@@ -35,25 +25,11 @@ def select_login(correo):
         if connection.is_connected():
             cursor.close()
             connection.close()
-            print("MySQL connection is closed")
-
-
-
-
-
-    
-
-
-
- 
+            print("MySQL connection is closed") 
 
 def insert_varibles_into_signup(fn, eml, psw, rpsw):
     try:
-        """
-        connection = mysql.connector.connect(host='localhost',
-                                             database='basedeprueba',
-                                             user='root',
-                                             password='')"""
+       
         connection=conexion()       
         cursor = connection.cursor()
         mySql_insert_query = """INSERT INTO `usuarios` (`NombreCompleto`, `correo`, `password`, `rppasword`) 
