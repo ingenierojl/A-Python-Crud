@@ -8,15 +8,15 @@ import mysql.connector
 def select_login(correo):
     
     try:
-        
+        """"
         connection = mysql.connector.connect(host='localhost',
                                              database='basedeprueba',
                                              user='root',
                                              password='')
-        cursor = connection.cursor()
+        cursor = connection.cursor()"""
         
-        #connection=conexion()
-        #cursor=conexion()
+        connection=conexion()
+        cursor=connection.cursor()
 
         queryselect=("""SELECT correo, password from usuarios where correo = %s""")
 
@@ -49,10 +49,12 @@ def select_login(correo):
 
 def insert_varibles_into_signup(fn, eml, psw, rpsw):
     try:
+        """
         connection = mysql.connector.connect(host='localhost',
                                              database='basedeprueba',
                                              user='root',
-                                             password='')
+                                             password='')"""
+        connection=conexion()       
         cursor = connection.cursor()
         mySql_insert_query = """INSERT INTO `usuarios` (`NombreCompleto`, `correo`, `password`, `rppasword`) 
                                 VALUES (%s, %s, %s, %s) """
