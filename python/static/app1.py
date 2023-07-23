@@ -30,13 +30,6 @@ def form_post(request: Request, eml: str = Form(...),psw: str = Form(...)):
     return templates.TemplateResponse("/index.html",{"request":request})
     #return "LOGIN...""LOGIN..."
     #return SimpleLogin(eml=eml,psw=psw)
-
-
-
-@appr.post('/submit')
-def submit(car: str = Form(...)):
-    return car
-
 @appr.post("/signup")
 def form_post(request: Request, fn: str = Form(...), eml: str = Form(...), psw: str = Form(...), rpsw: str = Form(...)):
     print(fn)
@@ -50,12 +43,14 @@ def form_post(request: Request, fn: str = Form(...), eml: str = Form(...), psw: 
 
 @appr.get("/obtenerusr")
 async def home(request: Request):
+    s=select_login("ingenierojl@misena.edu.co")
     datos = {
         'titulo': 'Mi página',
-        'mensaje': '¡Hola Anthony desde un endpoint!',
-        'nombre': 'Anthony',
-        'edad': 10
+        'mensaje': '¡Hola desde un endpoint!',
+        'Correo': s[0][0],
+        'Password': s[0][1]
     }
+    
     return templates.TemplateResponse("/html/usuarios.html", {"request": request, "datos": datos})
 
 
