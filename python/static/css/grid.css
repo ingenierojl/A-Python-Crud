@@ -48,9 +48,14 @@ body {
 .main {
   grid-area: main;
   background-color: #f5f5f5;
-  background-image: url("https://cdn.pixabay.com/photo/2018/03/31/06/31/dog-3277416_960_720.jpg");
+  background-image: url("/static/img/1.gif");
   background-repeat: no-repeat;
   background-size: 100% 100%;
+  display:inline-flex;
+  gap: 5%;
+  align-items:center;
+  justify-content: center;
+
 
  
 
