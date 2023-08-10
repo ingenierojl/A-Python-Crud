@@ -5,7 +5,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from funcion_insertar import *
-
+from funcion_select import *
 
 
 appr = FastAPI()
