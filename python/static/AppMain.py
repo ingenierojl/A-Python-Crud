@@ -42,19 +42,24 @@ def form_post(request: Request, fn: str = Form(...), eml: str = Form(...), psw: 
     #return SimpleLogin(eml=eml,psw=psw)
 
 @appr.get("/obtenerusr")
-async def home(request: Request):
-    s=select_login("ingenierojl@misena.edu.co")
+def homeusr(request: Request, eml: str):
+    print (eml)
+    print("obtener")
+
+    
+    s=select_login(eml)
     datos = {
         'titulo': 'Mi página',
         'mensaje': '¡Hola desde un endpoint!',
         'Correo': s[0][0],
         'Password': s[0][1]
-    }
+            }
     
     return templates.TemplateResponse("/html/usuarios.html", {"request": request, "datos": datos})
-
+    #return templates.TemplateResponse("item.html", {"request": request, "id": id}
+    
 if __name__=='__main__':
    
-    uvicorn.run(appr, host="localhost", port=8080)
+    uvicorn.run(appr, host="192.168.126.11", port=8080)
 
  
