@@ -73,12 +73,15 @@ def read_barcodes(frame):
         cv2.putText(frame, barcode_info, (x + 6, y - 6), font, 2.0, (255, 255, 255), 1)
         #3
         with open("barcode_result.txt", mode ='w') as file:
-            file.write("Recognized Barcode:" + barcode_info)
+           file.write("Recognized Barcode:" + barcode_info)
     return frame
 
 
 def generate_frames():
-    camera = cv2.VideoCapture(0)
+    #https://10.140.168.29:8008/video
+    #cap = cv2.VideoCapture('http://192.168.18.37:8090/video')
+    #camera = cv2.VideoCapture(0)
+    camera = cv2.VideoCapture('http://10.184.204.212:8008/video')
     while True:
         ret, frame = camera.read()
         if not ret:
@@ -102,6 +105,6 @@ async def obtener_video(request: Request):
     
 if __name__=='__main__':
    
-    uvicorn.run(appr, host="192.168.126.11", port=8080)
+    uvicorn.run(appr, host="192.168.95.11", port=8080)
 
  
