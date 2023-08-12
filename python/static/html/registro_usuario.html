@@ -1,0 +1,82 @@
+<!-- Registro_usuario.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registro de Usuario</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/webcamjs/1.0.26/webcam.min.js"></script>
+</head>
+<body>
+  <h1>Registro de Usuario</h1>
+  {% if message %}
+  <p>{{ message }}</p>
+  {% endif %}
+  {% if error_message %}
+  <p style="color: red;">{{ error_message }}</p>
+  {% endif %}
+  <form action="/registro_usuario" method="post" enctype="multipart/form-data">
+    <label for="nombre">Nombre:</label>
+    <input type="text" name="nombre" id="nombre" required><br><br>
+    
+    <label for="correo">Correo:</label>
+    <input type="email" name="correo" id="correo" required><br><br>
+    
+    <div id="webcam-container"></div>
+    
+    <input type="hidden" name="foto" id="foto" required>
+    
+    <button type="submit">Registrar</button>
+  </form>
+  
+  <script>
+    Webcam.set({
+      width: 320,
+      height: 240,
+      dest_width: 320,
+      dest_height: 240,
+      image_format: 'jpeg',
+      jpeg_quality: 90,
+      force_flash: false,
+      flip_horiz: true
+    });
+
+    Webcam.attach('#webcam-container');
+
+    document.querySelector('form').addEventListener('submit', async function (event) {
+      event.preventDefault();
+
+      const nombre = document.querySelector('#nombre').value;
+      const correo = document.querySelector('#correo').value;
+
+      Webcam.snap(async function (data_uri) {
+        const blob = await fetch(data_uri).then(response => response.blob());
+
+        const formData = new FormData();
+        formData.append('nombre', nombre);
+        formData.append('correo', correo);
+        formData.append('foto', blob, 'foto.jpg');
+
+        const request = new Request('/registro_usuario', {
+          method: 'POST',
+          body: formData
+        });
+
+        try {
+            const result = await fetch(request);
+            const json = await result.json();
+
+            if (json.success) {
+                alert('Registro exitoso');
+            } else {
+                alert('Error en el registro: ' + json.error_message);
+                }
+            } catch (error) {
+                 console.error('Error en la solicitud:', error);
+                 alert('Error en la solicitud al servidor');
+            }
+      });
+    });
+  </script>
+</body>
+</html>
