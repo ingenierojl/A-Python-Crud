@@ -16,13 +16,12 @@ from fastapi.responses import HTMLResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 import os
-import base64
 
-from io import BytesIO
-from PIL import Image
 import io
 import os
 import PIL.Image
+
+from typing import List
 
 
 
@@ -166,62 +165,46 @@ async def reconocimiento_facial_page(request: Request):
     return templates.TemplateResponse("/html/reconocimiento_facial.html", {"request": request})
 
 
-
-known_encodings = []
-known_names = []
-
-# Función para cargar imágenes y crear encodings
-def cargar_encodings():
-    known_folder = "D:\SoftPython\python\static\conocidos"  # Carpeta donde se encuentran las imágenes de personas conocidas
-    
-    for filename in os.listdir(known_folder):
-        if filename.endswith(".jpg") or filename.endswith(".png"):
-            image_path = os.path.join(known_folder, filename)
-            image = face_recognition.load_image_file(image_path)
-            encoding = face_recognition.face_encodings(image)[0]
-            known_encodings.append(encoding)
-            known_names.append(os.path.splitext(filename)[0])
-
-cargar_encodings()
-
 # Ruta para mostrar la página de registro de usuario
 @appr.get("/registro_usuario", response_class=HTMLResponse)
 async def registro_usuario_page(request: Request):
     return templates.TemplateResponse("/html/registro_usuario.html", {"request": request})
 
 # Ruta para manejar el registro de usuario con reconocimiento facial
+
+
+
 @appr.post("/registro_usuario")
-async def registro_usuario(request: Request, nombre: str = Form(...), correo: str = Form(...), foto: UploadFile = Form(...)):
-    # Obtener la imagen binaria de la foto
-    foto_bytes = await foto.read()
-
-    # Convertir la imagen en un array de numpy
-    foto_image = PIL.Image.open(io.BytesIO(foto_bytes)).convert("RGB")
-    foto_array = np.array(foto_image)
-
-    # Detectar caras en la imagen
-    face_locations = face_recognition.face_locations(foto_array)
+async def registro_usuario(nombre: str = Form(...), correo: str = Form(...), fotos: List[UploadFile] = File(...)):
+    user_folder = f"python/static/usuarios/{nombre}"
+    os.makedirs(user_folder, exist_ok=True)
     
-    if len(face_locations) > 0:
-        # Si se detecta al menos una cara, obtener la codificación de la primera cara
-        foto_encoding = face_recognition.face_encodings(foto_array, face_locations)[0]
+    success_messages = []  # Lista para almacenar mensajes de éxito para cada foto
+    error_messages = []    # Lista para almacenar mensajes de error para cada foto
+    
+    for i, foto in enumerate(fotos):
+        foto_bytes = await foto.read()
+
+        foto_image = PIL.Image.open(io.BytesIO(foto_bytes)).convert("RGB")
+        foto_array = np.array(foto_image)
+
+        face_locations = face_recognition.face_locations(foto_array)
         
-        # Resto del código para el registro y verificación
-        # ...
-        
-        # Crear una carpeta con el nombre del usuario y guardar la foto
-        user_folder = f"D:/SoftPython/python/static/usuarios/{nombre}"
-        os.makedirs(user_folder, exist_ok=True)
-        foto_path = f"{user_folder}/foto.jpg"
-        with open(foto_path, "wb") as f:
-            f.write(foto_bytes)
-        print("fue bien")
-        #return templates.TemplateResponse("/html/registro_usuario.html", {"request": request, "message": "Registro exitoso"})
-        return {"success": True, "message": "Registro exitoso"}
+        if len(face_locations) > 0:
+            # Resto del código para el registro y verificación
+            # ...
+
+            foto_path = f"{user_folder}/foto_{i}.jpg"
+            with open(foto_path, "wb") as f:
+                f.write(foto_bytes)
+            success_messages.append(f"Foto {foto.filename} registrada exitosamente")
+        else:
+            error_messages.append(f"No se detectaron caras en la foto {foto.filename}")
+
+    if success_messages:
+        return {"success": True, "message": " ".join(success_messages)}
     else:
-        print("fue mal")
-        #return templates.TemplateResponse("/html/registro_usuario.html", {"request": request, "error_message": "No se detectaron caras en la foto"})
-        return {"success": False, "error_message": "No se detectaron caras en la foto"}
+        return {"success": False, "error_message": " ".join(error_messages)}
 
 
 if __name__=='__main__':

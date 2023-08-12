@@ -1,4 +1,3 @@
-<!-- Registro_usuario.html -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -24,7 +23,11 @@
     
     <div id="webcam-container"></div>
     
-    <input type="hidden" name="foto" id="foto" required>
+    <button id="tomar-otra-foto" type="button">Tomar otra foto</button>
+    <button id="enviar-fotos" type="button">Enviar fotos</button>
+    
+    <label for="fotos">Fotos:</label>
+    <input type="file" name="fotos" id="fotos" accept=".jpg, .jpeg, .png" multiple><br><br>
     
     <button type="submit">Registrar</button>
   </form>
@@ -43,40 +46,72 @@
 
     Webcam.attach('#webcam-container');
 
-    document.querySelector('form').addEventListener('submit', async function (event) {
-      event.preventDefault();
+    const fotosTomadas = []; // Lista para almacenar las fotos tomadas
 
-      const nombre = document.querySelector('#nombre').value;
-      const correo = document.querySelector('#correo').value;
-
-      Webcam.snap(async function (data_uri) {
-        const blob = await fetch(data_uri).then(response => response.blob());
-
-        const formData = new FormData();
-        formData.append('nombre', nombre);
-        formData.append('correo', correo);
-        formData.append('foto', blob, 'foto.jpg');
-
-        const request = new Request('/registro_usuario', {
-          method: 'POST',
-          body: formData
-        });
-
-        try {
-            const result = await fetch(request);
-            const json = await result.json();
-
-            if (json.success) {
-                alert('Registro exitoso');
-            } else {
-                alert('Error en el registro: ' + json.error_message);
-                }
-            } catch (error) {
-                 console.error('Error en la solicitud:', error);
-                 alert('Error en la solicitud al servidor');
-            }
+    function tomarFoto() {
+      Webcam.snap(function (data_uri) {
+        fotosTomadas.push(data_uri);
+        alert('Foto tomada exitosamente');
       });
+    }
+
+    document.querySelector('#tomar-otra-foto').addEventListener('click', tomarFoto);
+
+    document.querySelector('#enviar-fotos').addEventListener('click', function () {
+      const fotosInput = document.querySelector('#fotos');
+      for (let i = 0; i < fotosInput.files.length; i++) {
+        const fotoFile = fotosInput.files[i];
+        fotosTomadas.push(fotoFile);
+      }
+      alert('Fotos listas para enviar');
     });
+
+    document.querySelector('form').addEventListener('submit', async function (event) {
+  event.preventDefault();
+
+  const nombre = document.querySelector('#nombre').value;
+  const correo = document.querySelector('#correo').value;
+
+  const formData = new FormData();
+  formData.append('nombre', nombre);
+  formData.append('correo', correo);
+
+  if (fotosTomadas.length === 0 && !document.querySelector('#fotos').value) {
+    alert('Debes tomar una foto o seleccionar al menos una foto antes de enviar los datos');
+    return;
+  }
+
+  for (let i = 0; i < fotosTomadas.length; i++) {
+    const foto = fotosTomadas[i];
+    if (typeof foto === 'string') {
+      const base64Data = foto.split(',')[1];
+      const blob = new Blob([new Uint8Array(atob(base64Data).split('').map(char => char.charCodeAt(0)))], { type: 'image/jpeg' });
+      formData.append('fotos', blob, `foto_${i}.jpg`);
+    } else {
+      formData.append('fotos', foto);
+    }
+  }
+
+  const request = new Request('/registro_usuario', {
+    method: 'POST',
+    body: formData
+  });
+
+  try {
+    const result = await fetch(request);
+    const json = await result.json();
+
+    if (json.success) {
+      alert('Registro exitoso');
+    } else {
+      alert('Error en el registro: ' + json.error_message);
+    }
+  } catch (error) {
+    console.error('Error en la solicitud:', error);
+    alert('Error en la solicitud al servidor');
+  }
+});
+
   </script>
 </body>
 </html>
