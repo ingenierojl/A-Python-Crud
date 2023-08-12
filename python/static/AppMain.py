@@ -121,7 +121,7 @@ async def obtener_video(request: Request):
 # Cargar imágenes y encodings de caras de referencia
 reference_image = face_recognition.load_image_file("D:/SoftPython/python/static/photo.jpg")
 reference_face_encoding = face_recognition.face_encodings(reference_image)[0]
-
+""""
 def generate_facial_frames():
     camera = cv2.VideoCapture('http://10.184.204.212:8008/video')
     
@@ -155,6 +155,54 @@ def generate_facial_frames():
                b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
     
     camera.release()
+    """
+
+
+
+def generate_facial_frames():
+    reference_folder = "D:/SoftPython/python/static/usuarios"
+    reference_encodings = []
+
+    for folder_name in os.listdir(reference_folder):
+        folder_path = os.path.join(reference_folder, folder_name)
+        if os.path.isdir(folder_path):
+            for image_name in os.listdir(folder_path):
+                if image_name.lower().endswith(('.jpg', '.jpeg', '.png')):
+                    image_path = os.path.join(folder_path, image_name)
+                    reference_image = face_recognition.load_image_file(image_path)
+                    reference_face_encoding = face_recognition.face_encodings(reference_image)[0]
+                    reference_encodings.append(reference_face_encoding)
+
+    camera = cv2.VideoCapture('http://172.24.216.1:8008/video')
+
+    while True:
+        ret, frame = camera.read()
+
+        if not ret:
+            break
+
+        face_locations = face_recognition.face_locations(frame)
+        face_encodings = face_recognition.face_encodings(frame, face_locations)
+
+        for face_encoding in face_encodings:
+            matches = face_recognition.compare_faces(reference_encodings, face_encoding)
+            name = "Desconocido"
+
+            if any(matches):
+                name = "Persona conocida"
+
+            top, right, bottom, left = face_locations[0]
+            cv2.rectangle(frame, (left, top), (right, bottom), (0, 255, 0), 2)
+            font = cv2.FONT_HERSHEY_DUPLEX
+            cv2.putText(frame, name, (left + 6, bottom - 6), font, 0.5, (255, 255, 255), 1)
+
+        _, buffer = cv2.imencode('.jpg', frame)
+        frame_bytes = buffer.tobytes()
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
+
+    camera.release()
+
 
 @appr.get("/video_feed_facial")
 async def video_feed_facial():
