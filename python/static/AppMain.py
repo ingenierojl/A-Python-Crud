@@ -24,7 +24,6 @@ import PIL.Image
 from typing import List
 
 
-
 appr = FastAPI()
 templates = Jinja2Templates(directory='D:\SoftPython\python\static')
 
@@ -260,6 +259,6 @@ async def registro_usuario(nombre: str = Form(...), correo: str = Form(...), fot
 
 if __name__=='__main__':
    
-    uvicorn.run(appr, host="192.168.189.11", port=8080)
+    uvicorn.run(appr, host="127.0.0.1", port=8030)
 
  
