@@ -1,3 +1,4 @@
+import subprocess
 from fastapi import APIRouter #Importar modulo
 import uvicorn #importar
 from fastapi import Request, FastAPI, Form
@@ -6,6 +7,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from funcion_insertar import *
 from funcion_select import *
+from funcion_update import *
 import cv2
 import face_recognition
 import numpy as np
@@ -25,6 +27,21 @@ from typing import List
 
 
 appr = FastAPI()
+"""
+subprocess.run(
+    [
+        "openssl",
+        "req",
+        "-x509",
+        "-newkey", "rsa:4096",
+        "-keyout", "clave_privada.key",
+        "-out", "certificado.crt",
+        "-days", "365",
+        "-subj", "/CN=localhost",  # Cambia "localhost" por el nombre de tu dominio
+    ],
+    check=True,
+)"""
+
 templates = Jinja2Templates(directory='D:\SoftPython\python\static')
 
 appr.mount("/static", StaticFiles(directory="D:/SoftPython/python/static"), name="static")
@@ -256,9 +273,26 @@ async def registro_usuario(nombre: str = Form(...), correo: str = Form(...), fot
     else:
         return {"success": False, "error_message": " ".join(error_messages)}
 
+@appr.post("/update_correo")
+async def update_correo(request: Request, nombre: str = Form(...), nuevo_correo: str = Form(...)):
+
+    print(nombre)
+    print(nuevo_correo)
+
+
+    actualizarcorreowherenombre(nombre, nuevo_correo)
+    
+
+    
+    return templates.TemplateResponse("/html/confirmacion_actualizacion.html", {"request": request, "nombre": nombre, "nuevo_correo": nuevo_correo})
+
+
+
 
 if __name__=='__main__':
    
-    uvicorn.run(appr, host="127.0.0.1", port=8030)
-
+    uvicorn.run(appr, host="192.168.249.11", port=8081, 
+                ssl_keyfile="clave_privada.key",
+                ssl_certfile="certificado.crt",
+                ssl_keyfile_password="1234")
  
