@@ -25,6 +25,8 @@ import PIL.Image
 
 from typing import List
 
+import json
+
 
 appr = FastAPI()
 """
@@ -135,8 +137,8 @@ async def obtener_video(request: Request):
 
 
 # Cargar imágenes y encodings de caras de referencia
-reference_image = face_recognition.load_image_file("D:/SoftPython/python/static/photo.jpg")
-reference_face_encoding = face_recognition.face_encodings(reference_image)[0]
+#reference_image = face_recognition.load_image_file("D:/SoftPython/python/static/photo.jpg")
+#reference_face_encoding = face_recognition.face_encodings(reference_image)[0]
 """"
 def generate_facial_frames():
     camera = cv2.VideoCapture('http://10.184.204.212:8008/video')
@@ -173,11 +175,10 @@ def generate_facial_frames():
     camera.release()
     """
 
-
-
+"""
 def generate_facial_frames():
     reference_folder = "D:/SoftPython/python/static/usuarios"
-    reference_encodings = {}  # Usaremos un diccionario para mapear encodings a nombres de subcarpetas
+    reference_encodings = {}
 
     for folder_name in os.listdir(reference_folder):
         folder_path = os.path.join(reference_folder, folder_name)
@@ -186,10 +187,11 @@ def generate_facial_frames():
                 if image_name.lower().endswith(('.jpg', '.jpeg', '.png')):
                     image_path = os.path.join(folder_path, image_name)
                     reference_image = face_recognition.load_image_file(image_path)
-                    reference_face_encoding = face_recognition.face_encodings(reference_image)[0]
-                    reference_encodings[reference_face_encoding.tobytes()] = folder_name
+                    reference_face_encodings = face_recognition.face_encodings(reference_image)
+                    if reference_face_encodings:
+                        encoding_key = tuple(reference_face_encodings[0])
+                        reference_encodings[encoding_key] = folder_name
 
-    #camera = cv2.VideoCapture('http://172.24.216.1:8008/video')
     camera = cv2.VideoCapture(0)
     while True:
         ret, frame = camera.read()
@@ -201,12 +203,12 @@ def generate_facial_frames():
         face_encodings = face_recognition.face_encodings(frame, face_locations)
 
         for face_encoding in face_encodings:
-            matches = [face_recognition.compare_faces([np.frombuffer(encoding)], face_encoding)[0] for encoding in reference_encodings.keys()]
+            matches = face_recognition.compare_faces(list(reference_encodings.keys()), face_encoding, tolerance=0.6)
+            name = "Desconocido"
+
             if any(matches):
                 matched_encoding = list(reference_encodings.keys())[matches.index(True)]
                 name = reference_encodings[matched_encoding]
-            else:
-                name = "Desconocido"
 
             top, right, bottom, left = face_locations[0]
             cv2.rectangle(frame, (left, top), (right, bottom), (0, 255, 0), 2)
@@ -219,9 +221,121 @@ def generate_facial_frames():
                b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
 
     camera.release()
+"""
+"""
+async def generate_facial_frames():
+    reference_folder = "D:/SoftPython/python/static/usuarios"
+    reference_encodings = {}
+
+    for folder_name in os.listdir(reference_folder):
+        folder_path = os.path.join(reference_folder, folder_name)
+        if os.path.isdir(folder_path):
+            for encoding_file_name in os.listdir(folder_path):
+                if encoding_file_name.startswith('encoding_') and encoding_file_name.endswith('.json'):
+                    encoding_path = os.path.join(folder_path, encoding_file_name)
+                    try:
+                        with open(encoding_path, 'r') as encoding_file:
+                            encoding_data = json.load(encoding_file)
+                            if isinstance(encoding_data, list) and len(encoding_data) > 0:
+                                encoding_key = tuple(encoding_data)
+                                reference_encodings[encoding_key] = folder_name
+                    except (json.JSONDecodeError, FileNotFoundError):
+                        pass
+
+    camera = cv2.VideoCapture(0)
+    while True:
+        ret, frame = camera.read()
+
+        if not ret:
+            break
+
+        face_locations = face_recognition.face_locations(frame)
+        face_encodings = face_recognition.face_encodings(frame, face_locations)
+
+        for face_encoding in face_encodings:
+            matches = face_recognition.compare_faces(list(reference_encodings.keys()), face_encoding, tolerance=0.6)
+            name = "Desconocido"
+
+            if any(matches):
+                matched_encoding = list(reference_encodings.keys())[matches.index(True)]
+                name = reference_encodings[matched_encoding]
+
+            for (top, right, bottom, left) in face_locations:
+                cv2.rectangle(frame, (left, top), (right, bottom), (0, 255, 0), 2)
+                font = cv2.FONT_HERSHEY_DUPLEX
+                cv2.putText(frame, name, (left + 6, bottom - 6), font, 0.5, (255, 255, 255), 1)
+
+        _, buffer = cv2.imencode('.jpg', frame)
+        frame_bytes = buffer.tobytes()
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
+
+    camera.release()
+"""
 
 
+import concurrent.futures
 
+async def generate_facial_frames():
+    reference_folder = "D:/SoftPython/python/static/usuarios"
+    reference_encodings = {}
+
+    def load_reference_encodings(folder_path):
+        encodings = {}
+        for encoding_file_name in os.listdir(folder_path):
+            if encoding_file_name.startswith('encoding_') and encoding_file_name.endswith('.json'):
+                encoding_path = os.path.join(folder_path, encoding_file_name)
+                try:
+                    with open(encoding_path, 'r') as encoding_file:
+                        encoding_data = json.load(encoding_file)
+                        if isinstance(encoding_data, list) and len(encoding_data) > 0:
+                            encoding_key = tuple(encoding_data)
+                            encodings[encoding_key] = folder_name
+                except (json.JSONDecodeError, FileNotFoundError):
+                    pass
+        return encodings
+    
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        for folder_name in os.listdir(reference_folder):
+            folder_path = os.path.join(reference_folder, folder_name)
+            if os.path.isdir(folder_path):
+                future = executor.submit(load_reference_encodings, folder_path)
+                reference_encodings.update(future.result())
+
+    camera = cv2.VideoCapture(0)
+    camera.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)  # Ancho de la resolución
+    camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)  # Alto de la resolución
+    camera.set(cv2.CAP_PROP_FPS, 120)  # Tasa de cuadros por segundo
+    while True:
+        ret, frame = camera.read()
+
+        if not ret:
+            break
+
+        face_locations = face_recognition.face_locations(frame)
+        face_encodings = face_recognition.face_encodings(frame, face_locations)
+
+        for face_encoding in face_encodings:
+            matches = face_recognition.compare_faces(list(reference_encodings.keys()), face_encoding, tolerance=0.6)
+            name = "Desconocido"
+
+            if any(matches):
+                matched_encoding = list(reference_encodings.keys())[matches.index(True)]
+                name = reference_encodings[matched_encoding]
+
+            for (top, right, bottom, left) in face_locations:
+                cv2.rectangle(frame, (left, top), (right, bottom), (0, 255, 0), 2)
+                font = cv2.FONT_HERSHEY_DUPLEX
+                cv2.putText(frame, name, (left + 6, bottom - 6), font, 0.5, (255, 255, 255), 1)
+
+        _, buffer = cv2.imencode('.jpg', frame)
+        frame_bytes = buffer.tobytes()
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
+
+    camera.release()
+
+""""""
 
 @appr.get("/video_feed_facial")
 async def video_feed_facial():
@@ -239,7 +353,7 @@ async def registro_usuario_page(request: Request):
 
 # Ruta para manejar el registro de usuario con reconocimiento facial
 
-
+"""
 
 @appr.post("/registro_usuario")
 async def registro_usuario(nombre: str = Form(...), correo: str = Form(...), fotos: List[UploadFile] = File(...)):
@@ -272,6 +386,50 @@ async def registro_usuario(nombre: str = Form(...), correo: str = Form(...), fot
         return {"success": True, "message": " ".join(success_messages)}
     else:
         return {"success": False, "error_message": " ".join(error_messages)}
+"""
+
+@appr.post("/registro_usuario")
+async def registro_usuario(nombre: str = Form(...), correo: str = Form(...), fotos: List[UploadFile] = File(...)):
+    user_folder = f"python/static/usuarios/{nombre}"
+    os.makedirs(user_folder, exist_ok=True)
+    
+    success_messages = []  # Lista para almacenar mensajes de éxito para cada foto
+    error_messages = []    # Lista para almacenar mensajes de error para cada foto
+    
+    for i, foto in enumerate(fotos):
+        foto_bytes = await foto.read()
+
+        foto_image = PIL.Image.open(io.BytesIO(foto_bytes)).convert("RGB")
+        foto_array = np.array(foto_image)
+
+        face_locations = face_recognition.face_locations(foto_array)
+        
+        if len(face_locations) > 0:
+            # Generar encodings faciales
+            face_encodings = face_recognition.face_encodings(foto_array, face_locations)
+            
+            if face_encodings:
+                # Almacenar encoding en un archivo
+                for j, encoding in enumerate(face_encodings):
+                    encoding_path = f"{user_folder}/encoding_{i}_{j}.json"
+                    with open(encoding_path, "w") as encoding_file:
+                        json.dump(encoding.tolist(), encoding_file)
+                
+                foto_path = f"{user_folder}/foto_{i}.jpg"
+                with open(foto_path, "wb") as f:
+                    f.write(foto_bytes)
+                success_messages.append(f"Foto {foto.filename} registrada exitosamente")
+            else:
+                error_messages.append(f"No se pudieron generar encodings para la foto {foto.filename}")
+        else:
+            error_messages.append(f"No se detectaron caras en la foto {foto.filename}")
+
+    if success_messages:
+        return {"success": True, "message": " ".join(success_messages)}
+    else:
+        return {"success": False, "error_message": " ".join(error_messages)}
+
+
 
 @appr.post("/update_correo")
 async def update_correo(request: Request, nombre: str = Form(...), nuevo_correo: str = Form(...)):
