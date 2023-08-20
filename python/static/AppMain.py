@@ -305,7 +305,7 @@ async def generate_facial_frames():
     camera = cv2.VideoCapture(0)
     camera.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)  # Ancho de la resolución
     camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)  # Alto de la resolución
-    camera.set(cv2.CAP_PROP_FPS, 120)  # Tasa de cuadros por segundo
+    camera.set(cv2.CAP_PROP_FPS, 50)  # Tasa de cuadros por segundo
     while True:
         ret, frame = camera.read()
 
@@ -449,7 +449,7 @@ async def update_correo(request: Request, nombre: str = Form(...), nuevo_correo:
 
 if __name__=='__main__':
    
-    uvicorn.run(appr, host="192.168.249.11", port=8081, 
+    uvicorn.run(appr, host="localhost", port=8081, 
                 ssl_keyfile="clave_privada.key",
                 ssl_certfile="certificado.crt",
                 ssl_keyfile_password="1234")
