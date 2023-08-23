@@ -1,5 +1,8 @@
 import cv2
-from pyzbar import pyzbar
+try:
+    from pyzbar import pyzbar
+except:
+    print("pyzbar not installed")
 
 def read_barcodes(frame):
     barcodes = pyzbar.decode(frame)
@@ -18,7 +21,9 @@ def read_barcodes(frame):
 
 
 def generate_frames():
-    camera = cv2.VideoCapture('http://10.184.204.212:8008/video')
+    camera = cv2.VideoCapture('http://10.164.199.248:8008/video')
+    #camera = cv2.VideoCapture(0)
+
     while True:
         ret, frame = camera.read()
         if not ret:

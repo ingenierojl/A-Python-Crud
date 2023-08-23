@@ -8,9 +8,14 @@ html
     height: 100%;
 }
 body {
-  
+
   font-size: 1.2rem;
-  min-height: 100%;
+  min-height: auto;
+  background-image: url('/static/img/efectfondo.gif');
+  max-height: auto;
+  background-size: cover;
+  background-repeat: no-repeat;
+  
 }
 .grid-container > * {
   box-shadow: -1px 1px 7px 0px rgba(0, 0, 0, 0.75);
@@ -23,17 +28,17 @@ body {
   background-color: #85aedd;
 }
 
- 
+
 
 .nav-bar {
   grid-area: nav-bar;
   background-color: #000000;
   float: left;
 
-  
+
 }
 
- 
+
 
 .sidebar {
   grid-area: sidebar;
@@ -43,36 +48,45 @@ body {
   background-size: 100% 100%;
 }
 
- 
+
 
 .main {
   grid-area: main;
-  background-color: #f5f5f5;
+
+
+}
+.main
+{
   background-image: url("/static/img/1.gif");
   background-repeat: no-repeat;
   background-size: 100% 100%;
-  display:inline-flex;
-  gap: 5%;
+  display:flex;
   align-items:center;
-  justify-content: center; 
-
+  justify-content: center;
+  gap:10px;
+  row-gap: 10px;
+  flex-wrap: wrap;
+  height: auto;
+  
 }
 .main #marco
 {
-  height: 250px;
-  width: 250px;
+  height: 400px;
+  width: 400px;
   border: 5px solid rgb(236, 158, 158);
   border-radius: 5px;
+  
+
 }
 
- 
+
 
 .footer {
   grid-area: footer;
   background-color: #8c96a0;
 }
 
- 
+
 
 .grid-container {
   display: grid;
@@ -84,7 +98,7 @@ body {
     "sidebar" 100px
     "footer"  100px;
 }
- 
+
 
 @media (min-width: 900px) {
   .grid-container {
