@@ -1,4 +1,4 @@
-from funcion_conexion import *
+from py.funcion_conexion import *
 import mysql.connector
 
 def select_login(correo):    
@@ -13,8 +13,7 @@ def select_login(correo):
         myresult=cursor.fetchall()
         connection.commit()
         return myresult
-        print("Bienvenido a la funcion select-login")
- 
+         
 
     except mysql.connector.Error as error:
         print("Failed to insert into MySQL table {}".format(error))

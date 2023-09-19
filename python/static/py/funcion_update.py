@@ -1,4 +1,4 @@
-from funcion_conexion import *
+from py.funcion_conexion import *
 
 def actualizarcorreowherenombre(nombre, nuevo_correo):
     try:

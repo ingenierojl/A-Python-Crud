@@ -1,4 +1,4 @@
-from funcion_conexion import *
+from py.funcion_conexion import *
 import mysql.connector
 
 def insert_varibles_into_signup(fn, eml, psw, rpsw):

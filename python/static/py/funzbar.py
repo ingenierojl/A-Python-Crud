@@ -21,8 +21,8 @@ def read_barcodes(frame):
 
 
 def generate_frames():
-    camera = cv2.VideoCapture('http://10.164.199.248:8008/video')
-    #camera = cv2.VideoCapture(0)
+    #camera = cv2.VideoCapture('http://10.164.199.248:8008/video')
+    camera = cv2.VideoCapture(2)
 
     while True:
         ret, frame = camera.read()

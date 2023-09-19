@@ -4,9 +4,9 @@ from fastapi import Request, FastAPI, Form
 from fastapi.responses import HTMLResponse, StreamingResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
-from funcion_insertar import *
-from funcion_select import *
-from funcion_update import *
+from py.funcion_insertar import *
+from py.funcion_select import *
+from py.funcion_update import *
 import cv2
 import face_recognition
 import numpy as np

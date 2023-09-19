@@ -2,8 +2,23 @@
 <html>
 <head>
     <title>Actualizar Correo</title>
+    <link rel="stylesheet" type="text/css" href="/static/css/bootstrap.min.css" >
 </head>
 <body>
+    <header id="header">
+
+        <script>
+            fetch('/static/html//menu.txt')
+              .then(response => response.text())
+              .then(data => {
+                document.getElementById('header').innerHTML = data;
+              });  
+            </script>
+
+
+
+    </header>
+
     <h1>Actualizar Correo</h1>
     <form action="/update_correo" method="post">
         <label for="nombre">Nombre Completo:</label>
@@ -14,5 +29,8 @@
         
         <button type="submit">Actualizar Correo</button>
     </form>
+
+    <script src="/static/js/bootstrap.bundle.min.js" ></script>
+
 </body>
 </html>
