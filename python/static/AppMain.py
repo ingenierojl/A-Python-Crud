@@ -16,6 +16,12 @@ import PIL.Image
 from typing import List
 import json
 import concurrent.futures
+from fastapi import FastAPI, Depends, HTTPException 
+from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from jose import jwt, JWTError
+
+
 #import fingerprint
 
 
@@ -34,6 +40,7 @@ appr.mount("/static", StaticFiles(directory="D:/SoftPython/python/static"), name
 async def home(request: Request):
     return templates.TemplateResponse("/index.html", {"request": request})
 
+"""
 @appr.post("/login")
 def form_post(request: Request, eml: str = Form(...), psw: str = Form(...)):
     s = select_login(eml)
@@ -43,6 +50,39 @@ def form_post(request: Request, eml: str = Form(...), psw: str = Form(...)):
         return templates.TemplateResponse("/index.html", {"request": request})
     else:
         return "error"
+"""
+
+SECRET_KEY = "mi_clave_secreta" 
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+@appr.post("/login")
+def login(form_data: OAuth2PasswordRequestForm = Depends()):
+
+    eml = form_data.username #debe llamarse en el input username alla en el email :/
+    psw = form_data.password #name=password en el input por protocolo oath:/
+    user = select_login(eml)
+    print(user)
+    print(psw)
+
+    if psw == user[0][1]:
+       token = jwt.encode({"sub": eml}, SECRET_KEY, algorithm="HS256")
+       
+       print("creado")
+       print(token)
+       return {"access_token": token, "token_type": "bearer"}
+
+    return HTTPException(status_code=400, detail="Usuario o contraseña incorrectos")
+
+@appr.post('/protected')
+def protected_route(token: str = Depends(oauth2_scheme)):
+
+  try:  
+    print("payload")
+    payload = jwt.decode(token, SECRET_KEY)
+    print("acceso autorizado")
+    return {"message": "Acceso autorizadoooo"}   
+              
+  except JWTError: 
+    raise HTTPException(status_code=401, detail='Token inválido')
 
 @appr.post("/signup")
 def form_post(request: Request, fn: str = Form(...), eml: str = Form(...), psw: str = Form(...), rpsw: str = Form(...)):
