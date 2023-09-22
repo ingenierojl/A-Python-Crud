@@ -1,10 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
-  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-    <meta charset="UTF-8">
+  <link rel="stylesheet" type="text/css" href="/static/css/bootstrap.min.css" >
+  <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
    
@@ -54,9 +52,17 @@
                 <input type="password" id="user-pass" name="psw" class="form-control" placeholder="Password" required autofocus="">
                 <input type="password" id="user-repeatpass" name="rpsw" class="form-control" placeholder="Repeat Password" required autofocus="">
 
+                <select name="user_type" class="form-control">
+                    <option value="admin">Administrador</option>
+                    <option value="teacher">Docente</option>
+                    <option value="student">Estudiante</option>
+                    <option value="manager">Directivo</option>
+                  </select>
+
                 <button class="btn btn-primary btn-block" type="submit"><i class="fas fa-user-plus"></i> Sign Up</button>
                 <a href="#" id="cancel_signup"><i class="fas fa-angle-left"></i> Back</a>
             </form>
+
             <br>
            
     </div>
@@ -84,5 +90,6 @@ $(()=>{
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
     <script src="script.js"></script>
+    
 </body>
 </html>

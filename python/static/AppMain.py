@@ -72,6 +72,8 @@ def login(form_data: OAuth2PasswordRequestForm = Depends()):
 
     return HTTPException(status_code=400, detail="Usuario o contraseña incorrectos")
 
+
+
 @appr.post('/protected')
 def protected_route(token: str = Depends(oauth2_scheme)):
 
@@ -85,7 +87,8 @@ def protected_route(token: str = Depends(oauth2_scheme)):
     raise HTTPException(status_code=401, detail='Token inválido')
 
 @appr.post("/signup")
-def form_post(request: Request, fn: str = Form(...), eml: str = Form(...), psw: str = Form(...), rpsw: str = Form(...)):
+def form_post(request: Request, fn: str = Form(...), eml: str = Form(...), psw: str = Form(...), rpsw: str = Form(...), user_type: str = Form(...)):
+    print("user_type", user_type);
     insert_varibles_into_signup(fn, eml, psw, rpsw)
     return templates.TemplateResponse("/index.html", {"request": request})
 

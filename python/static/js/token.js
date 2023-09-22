@@ -1,8 +1,8 @@
 import { authFetch } from './auth.js';
-export function login(username, password) {
-  let token;
+export function login(username, password) 
+{
+ 
   const data = {username, password};
-
   console.log("antes del fetch");
 
   fetch('/login', {
